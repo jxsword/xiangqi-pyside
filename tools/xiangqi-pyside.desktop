@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=中国象棋
+Name[zh_CN]=中国象棋
+Comment=Chinese Chess (PySide6)
+Exec=xiangqi-pyside
+Icon=xiangqi
+Type=Application
+Categories=Game;BoardGame;
+Terminal=false

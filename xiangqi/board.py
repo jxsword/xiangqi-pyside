@@ -326,4 +326,4 @@ class Board:
         self._unapply(m, captured)
 
     def has_no_legal_moves(self, color: int) -> bool:
-        return not self.generate_moves()
+        return not self.generate_moves(color)

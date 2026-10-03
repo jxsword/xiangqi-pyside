@@ -27,3 +27,6 @@ squashfs-root/
 .vscode/
 *.swp
 .DS_Store
+
+# 下载的打包工具
+tools/appimagetool
