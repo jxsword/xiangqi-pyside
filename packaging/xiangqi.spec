@@ -1,16 +1,56 @@
 # -*- mode: python ; coding: utf-8 -*-
 # PyInstaller 打包配置（onedir）：PySide6 QWidget 程序
+import os
 import sys
-from PyInstaller.utils.hooks import collect_submodules
+from PyInstaller.utils.hooks import (
+    collect_submodules, collect_dynamic_libs, collect_data_files,
+)
 
+WIN = sys.platform == 'win32'
 hiddenimports = collect_submodules('xiangqi')
-ICON = '../tools/xiangqi.ico' if sys.platform == 'win32' else '../tools/xiangqi.png'
+ICON = '../tools/xiangqi.ico' if WIN else '../tools/xiangqi.png'
+
+# QWidget 程序不需要 QML/Quick/PDF/虚拟键盘等
+_DROP_LIB = ('Qt6Qml', 'Qt6Quick', 'Qt6QmlMeta', 'Qt6QmlModels',
+             'Qt6QmlWorkerScript', 'Qt6VirtualKeyboard', 'Qt6Pdf')
+_DROP_PATH = ('PySide6/Qt/qml/', 'Qt/qml/', 'qmltooling/',
+              'platforminputcontexts/qtvirtualkeyboard', 'QtQuick/')
+
+# Windows 下显式收集的 Qt 运行库（wine 交叉构建时 QtLibraryInfo 子进程查询会失败，
+# 标准 hook 无法自动发现插件，故在 win32 下改为显式白名单收集）
+_KEEP_QT_DLL = (
+    'Qt6Core.dll', 'Qt6Gui.dll', 'Qt6Widgets.dll', 'Qt6Network.dll',
+    'Qt6OpenGL.dll', 'Qt6Svg.dll',
+)
+_KEEP_VC_PREFIX = ('concrt140', 'msvcp140', 'vcruntime140')
+_KEEP_PLUGIN_DIRS = (
+    'platforms', 'imageformats', 'styles', 'iconengines',
+    'tls', 'generic', 'networkinformation',
+)
+
+extra_binaries = []
+extra_datas = []
+if WIN:
+    # shiboken6 动态库
+    extra_binaries += collect_dynamic_libs('shiboken6')
+    # PySide6 扁平布局：Qt6*.dll 与 VC 运行时位于 PySide6/ 根目录
+    for src, dest in collect_dynamic_libs('PySide6'):
+        base = os.path.basename(src)
+        if base in _KEEP_QT_DLL or base.startswith(_KEEP_VC_PREFIX):
+            extra_binaries.append((src, dest))
+    # 插件（按白名单目录）放到 PySide6/plugins（rthook 以 QT_PLUGIN_PATH 指向此处）
+    for src, dest in collect_data_files('PySide6'):
+        norm = src.replace('\\', '/')
+        if '/plugins/' in norm:
+            sub = norm.split('/plugins/')[1].split('/')[0]
+            if sub in _KEEP_PLUGIN_DIRS:
+                extra_datas.append((src, dest))
 
 a = Analysis(
     ['../main.py'],
     pathex=['..'],
-    binaries=[],
-    datas=[],
+    binaries=extra_binaries,
+    datas=extra_datas,
     hiddenimports=hiddenimports,
     hookspath=[],
     runtime_hooks=[],
@@ -20,12 +60,6 @@ a = Analysis(
               'PySide6.QtPdf', 'PySide6.QtVirtualKeyboard'],
     noarchive=False,
 )
-
-# QWidget 程序不需要 QML/Quick/PDF/虚拟键盘等原生库与插件，剔除瘦身
-_DROP_LIB = ('Qt6Qml', 'Qt6Quick', 'Qt6QmlMeta', 'Qt6QmlModels',
-             'Qt6QmlWorkerScript', 'Qt6VirtualKeyboard', 'Qt6Pdf')
-_DROP_PATH = ('PySide6/Qt/qml/', 'Qt/qml/', 'qmltooling/',
-              'platforminputcontexts/qtvirtualkeyboard', 'QtQuick/')
 
 
 def _dropped(name: str) -> bool:
