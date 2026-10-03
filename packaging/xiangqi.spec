@@ -7,8 +7,14 @@ from PyInstaller.utils.hooks import (
 )
 
 WIN = sys.platform == 'win32'
+DARWIN = sys.platform == 'darwin'
 hiddenimports = collect_submodules('xiangqi')
-ICON = '../tools/xiangqi.ico' if WIN else '../tools/xiangqi.png'
+if WIN:
+    ICON = '../tools/xiangqi.ico'
+elif DARWIN:
+    ICON = None  # macOS 需 .icns，暂用 PyInstaller 默认图标
+else:
+    ICON = '../tools/xiangqi.png'
 
 # QWidget 程序不需要 QML/Quick/PDF/虚拟键盘等
 _DROP_LIB = ('Qt6Qml', 'Qt6Quick', 'Qt6QmlMeta', 'Qt6QmlModels',
