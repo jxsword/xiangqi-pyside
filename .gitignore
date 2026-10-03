@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# PyInstaller 构建产物
+build/
+dist/
+*.spec.bak
+
+# 打包中间产物
+AppDir/
+debroot/
+win-build/
+win-dist/
+squashfs-root/
+*.AppImage
+*.deb
+*.exe
+/installer.nsi
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
