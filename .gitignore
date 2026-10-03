@@ -9,6 +9,8 @@ venv/
 # PyInstaller 构建产物
 build/
 dist/
+build-win/
+dist-win/
 *.spec.bak
 
 # 打包中间产物
