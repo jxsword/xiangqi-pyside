@@ -92,3 +92,12 @@ coll = COLLECT(
     strip=False, upx=False,
     name='xiangqi-pyside',
 )
+
+if DARWIN:
+    # macOS 下 COLLECT 只生成普通目录，必须 BUNDLE 才会产出 .app 应用包
+    app = BUNDLE(
+        coll,
+        name='xiangqi-pyside.app',
+        icon=None,
+        bundle_identifier='com.xiangqi.pyside',
+    )
