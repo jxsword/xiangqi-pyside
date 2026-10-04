@@ -16,7 +16,7 @@ env:
 jobs:
   # ============ Linux（AppImage + deb）============
   linux:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -117,4 +117,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: macos-app
-          path: *.tar.gz
+          path: "*.tar.gz"
